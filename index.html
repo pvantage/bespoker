@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Mybespoker</title>
+<link href="css/style.css" type="text/css" rel="stylesheet" />
+<link href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/jquery-ui.js"></script>
+<script type="text/javascript">
+
+jQuery(document).ready(function(){
+
+	jQuery( document ).on( "mobileinit", function() {
+		jQuery.mobile.allowCrossDomainPages = true;
+	});
+	var contentType ="application/x-www-form-urlencoded; charset=utf-8";
+    if(window.XDomainRequest){contentType = "text/plain";}
+	jQuery.support.cors = true;
+    
+		
+		var siteurl = 'http://vantageprojects.biz/mybespoker';
+		var url = siteurl + '/wp-admin/admin-ajax.php';
+		
+       jQuery.ajax({  
+         type: 'GET',  
+         url: url,           
+         dataType: 'jsonp',  
+         data: {acting:'showlistofframes'},  
+         crossDomain: true,  
+         success: function(res) {  
+		 		   
+		       var availableFrames = res['frames'];
+			   
+			  			   
+		   		/*var available_dimention_width = res['dimention_width'];			   
+			  				
+				jQuery("#dimention_width").autocomplete({
+      					source: available_dimention_width
+    			});
+				
+				
+			 var available_dimention_height = res['dimention_height'];			   
+			  				
+				jQuery("#dimention_height").autocomplete({
+      					source: available_dimention_height
+    			});*/	
+		   
+		   var mounts='<option value="">Select mount type</option>';
+		   jQuery(res['mounts']).each(function(index){
+		   		mounts+='<option value="'+res['mounts'][index]['id']+'">'+res['mounts'][index]['title']+'</option>';
+		   });
+		   
+		   jQuery('#mounts').html(mounts);
+		   
+		   var glasses='<option value="">Please select glass type</option>';
+		   jQuery(res['glasses']).each(function(index){
+		   		glasses+='<option value="'+res['glasses'][index]['id']+'">'+res['glasses'][index]['title']+'</option>';
+		   });
+		   jQuery('#glasses').html(glasses);
+		   
+		   jQuery('.addtocart').click(function(){
+		   		
+		   });
+         },  
+         error: function(response, d, a){
+            jQuery('body .bodyoverlay').remove();
+			jQuery('body .popupbox').remove();
+			var html='<div class="bodyoverlay"></div><div class="popupbox errorbox"><div class="popupimg"><img src="images/error.png" /></div><h1 class="success">ERROR</h1><h1>Server Error.</h1><button class="okbox">OK</button></div>';
+			jQuery('body').append(html);
+			
+			jQuery('.okbox').click(function(){
+				jQuery('body .bodyoverlay').remove();
+				jQuery('body .popupbox').remove();
+			}); 
+         } 
+       });	   
+	   
+	   $("#dimention_width, #dimention_height").keypress(function(e) {        
+		var frame_width = parseInt($("#dimention_width").val());
+		var frame_height = parseInt($("#dimention_height").val());
+		var frame_type = $("#frame_type").val();
+		
+		var qty_txt_temp = false;
+		var qty_dimention_temp = false;
+		
+				
+		if(frame_width > 0 && frame_height > 0)
+		{
+			qty_dimention_temp= true;
+		}
+		
+		
+		if(qty_dimention_temp == true)
+		{
+			$(".calculate_price").attr("disabled", false);
+			$(".calculate_price").removeClass("desable");	
+		}else{
+			$(".calculate_price").attr("disabled", true);	
+			$(".calculate_price").addClass("desable");
+		}
+		
+    });
+	
+	$("#dimention_width, #dimention_height").trigger("keypress");
+	
+	
+	$(".calculate_price").live("click", function(){
+	
+		var acturl = url + '?acting=calculateprice';
+	 	jQuery.ajax({  
+			 type: 'POST',  
+			 url: acturl,           
+			 dataType: 'jsonp',  
+			 data: jQuery('input[type="number"], select[name="frame_type"], select[name="mount_board"], select[name="glass_type"], input[name="acting"]'),  
+			 crossDomain: true,  
+			 success: function(res) {  
+				if(res['dimention'])	   
+				{
+						  jQuery(".entered_dimention").html(res['dimention']);
+			 	}
+				if(res['frame_type'])	   
+				{
+						  jQuery(".entered_frame_type").html(res['frame_type']);
+			 	}
+				if(res['mount_board'])	   
+				{
+						  jQuery(".entered_mount_board").html(res['mount_board']);
+			 	}
+				
+				if(res['glass_type'])	   
+				{
+						  jQuery(".entered_glass_type").html(res['glass_type']);
+			 	}
+				
+				if(res['mount_size'])	   
+				{
+					 jQuery(".entered_mount_size").html(res['mount_size']);
+			 	}
+				
+				
+				
+				if(res['calculated_price'])	   
+				{
+						  jQuery(".calculated_price").html(res['calculated_price']);
+			 	}
+				
+				if(parseFloat(res['price']) > 0.00){
+					$(".add_to_cart").attr("disabled", false);
+					$(".add_to_cart").removeClass("desable");
+					$("#cart_common").val("Add to cart");
+					$("#cart_common").removeClass("proceed_to_checkout");
+					$("#cart_common").addClass("add_to_cart");
+					
+				}else{
+					
+					$(".add_to_cart").attr("disabled", true);
+					$(".add_to_cart").addClass("desable");
+					$("#cart_common").removeClass("proceed_to_checkout");
+					$("#cart_common").addClass("add_to_cart desable");
+					alert("Sorry, frame size requested by you is not available.");
+					
+				}
+			 }
+       });
+	   
+	   
+	});
+	
+	
+	$(".add_to_cart").live("click", function(){
+	
+		var acturl = url + '?acting=add_to_cart';
+	 	jQuery.ajax({  
+			 type: 'POST',  
+			 url: acturl,           
+			 dataType: 'jsonp',  
+			 data: jQuery('input[type="number"], select[name="frame_type"], select[name="mount_board"], select[name="glass_type"]'),  
+			 crossDomain: true,  
+			 success: function(res) { 			 
+			 		alert(res['success']);	
+					$("#cart_common").removeClass("add_to_cart");	
+					$("#cart_common").addClass("proceed_to_checkout");
+					$("#cart_common").val("Proceed to checkout");
+					$('input[type="number"]').val("");
+					$(".calculate_price").addClass("desable");
+					$(".calculate_price").attr("disabled", true);					
+					$('select').val('');					
+					$(".entered_dimention").html('none');
+					$(".entered_frame_type").html('none');
+					$(".entered_mount_board").html('none');
+					$(".entered_mount_size").html('none');
+					$(".entered_glass_type").html('none');
+					$(".calculated_price").html('&pound;0.00');
+					$("#qty").val(1);
+				}
+       });	   
+	}); 
+	
+	$(".proceed_to_checkout").live("click", function(){
+		
+		location= "cart.html";	
+	
+	});
+	
+	$(".reset").live("click", function(){
+			$('input[type="number"]').val('');
+			$('select').val('');
+			$('select').val('');
+			$(".calculate_price").addClass("desable");
+			$(".calculate_price").attr("disabled", true);
+			$("#cart_common").addClass("desable");
+			$("#cart_common").attr("disabled", true);			
+			$(".entered_dimention").html('none');
+			$(".entered_frame_type").html('none');
+			$(".entered_mount_board").html('none');
+			$(".entered_mount_size").html('none');
+			$(".entered_glass_type").html('none');
+			$(".calculated_price").html('&pound;0.00');
+			$("#qty").val(1);
+           			
+			
+	});
+	
+});
+</script>
+</head>
+<body>
+<div class="container maincontainer">
+  <div class="header"> <a href="#"><img src="images/logo.png" /></a> </div>
+  <div class="wrapper">
+    <div class="orderconfirmation">
+      <div class="order_frame_section">
+        <h1>Order Your Frame</h1>
+        <ul class="frame_section">
+        
+        <li>
+            <label><span class="req">*</span>Frame Type</label>
+            <div class="right_fram_box">
+              <select class="inpt" tabindex="3" id="frame_type" name="frame_type">              
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              </select>
+            </div>
+          </li>
+          
+          <li class="border">
+            <label><span class="req">*</span>Frame Dimensions</label>
+            <div class="right_fram_box">
+              <input class="inpt dimension" tabindex="1" type="number" id="dimention_width" name="dimention_width" placeholder="width" />
+              X
+              <input class="inpt dimension" tabindex="2" type="number" id="dimention_height" name="dimention_height" placeholder="Height" />
+            </div>
+          </li>
+          
+          <li>
+            <label>Mount Board</label>
+            <div class="right_fram_box">
+              <select class="inpt" name="mount_board" id="mounts" tabindex="4">
+              </select>
+            </div>
+          </li>
+          <li class="border">
+            <label>Mount Size</label>
+            <div class="right_fram_box">
+              <input class="inpt dimension" type="number" tabindex="5" name="mount_width" placeholder="Width" />
+              X
+              <input class="inpt dimension" tabindex="6" type="number" name="mount_height" placeholder="Height"  />
+             
+            </div>
+          </li>
+          <li>
+            <label>Glass Type</label>
+            <div class="right_fram_box">
+              <select name="glass_type" id="glasses" class="inpt" tabindex="7">               
+              </select>
+            </div>
+          </li>
+          <li class="chosenbox">
+            <h1>You have chosen</h1>
+            <div class="numbers lefticon">Dimention:&nbsp;<span class="entered_dimention">none</span></div>
+            <div class="numbers lefticon">Frame Type:&nbsp;<span class="entered_frame_type">none</span></div>
+            <div class="numbers lefticon">Mount Board:&nbsp;<span class="entered_mount_board">none</span></div>
+            <div class="numbers lefticon">Mount Size:&nbsp;<span class="entered_mount_size">none</span></div>
+            <div class="numbers lefticon">Glass Type:&nbsp;<span class="entered_glass_type">none</span></div>
+            <div class="numbers lefticon">Price:&nbsp;<span class="calculated_price">&pound;0.00</span></div>
+            <div class="numbers quantity">Quantity: <input type="number" name="qty" max="qty" id="qty" value="1"/></div>
+            <div class="numbers calprice"></div>
+          </li>
+          <li class="resetbox">
+            <div class="inputbox">
+              <input class="submit_button reset" type="reset" value="RESET"/>
+            </div>
+            <div class="inputbox">
+              <input class="submit_button desable calculate_price" type="button" value="Calculate Price" disabled="disabled"/>
+            </div>
+            <div class="inputbox">
+              <input id="cart_common" class="submit_button desable add_to_cart" type="button" value="Add to cart" disabled="disabled"/>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+function checkForm()
+{
+	alert("Please fill required fields");	
+}
+</script>
+</body>
+</html>

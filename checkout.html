@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Mybespoker</title>
+<link href="css/style.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+	
+		$('.confirm_order').live("click", function(){
+			
+			var siteurl = 'http://vantageprojects.biz/mybespoker';
+			var url = siteurl + '/wp-admin/admin-ajax.php?acting=place_order';
+		
+			   jQuery.ajax({  
+				 type: 'GET',  
+				 url: url,           
+				 dataType: 'jsonp',  
+				 data: $('input[type="text"], input[type="number"]'),  
+				 crossDomain: true,  
+				 success: function(res) {	
+				 
+				 	$(".inputerror").remove();	 				
+						
+						if(res['success'])
+						{
+							location = 'success.html';	
+						}
+						
+						if(res['error'])
+						{
+							if(res['error']['full_name'])
+							{
+								$('input[name="full_name"]').after('<span class="inputerror">' + res['error']['full_name'] + '</span>');	
+							}
+							if(res['error']['mobile_no'])
+							{
+								$('input[name="mobile_no"]').after('<span class="inputerror">' + res['error']['mobile_no'] + '</span>');	
+							}
+							if(res['error']['email'])
+							{
+								$('input[name="email"]').after('<span class="inputerror">' + res['error']['email'] + '</span>');	
+							}
+						}
+					}
+			   });
+	   
+		});
+	   
+	   
+	
+});
+</script>
+</head>
+<body>
+<div class="container maincontainer">
+  <div class="header"> <a href="./"><img src="images/logo.png" /></a> </div>
+  <div class="wrapper">
+    <div class="loginmain_section">
+      <div class="loginbox">
+        <h1>Enter your Details</h1>
+        <div class="box1">
+          <label>Full Name</label>
+          <div class="inputbox">
+            <input class="inputtext" name="full_name" tabindex="1" type="text" placeholder="Please enter full name"/>
+          </div>
+        </div>
+        <div class="box1">
+          <label>Mobile number</label>
+          <div class="inputbox">
+            <input class="inputtext" name="mobile_no" maxlength="10" type="number" tabindex="2" placeholder="Please enter mobile number"/>
+          </div>
+        </div>
+        <div class="box1">
+          <label>Email Id</label>
+          <div class="inputbox">
+            <input class="inputtext" name="email" type="text" tabindex="3" placeholder="Please enter email address"/>
+          </div>
+        </div>
+        <div class="box1">
+          <label>&nbsp;</label>
+          <div class="inputbox">
+            <input class="submit_button confirm_order" type="button" tabindex="4" value="SUBMIT"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

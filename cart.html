@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Mybespoker</title>
+<link href="css/style.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript">
+jQuery(document).ready(function(){
+
+	jQuery( document ).on( "mobileinit", function() {
+		jQuery.mobile.allowCrossDomainPages = true;
+	});
+	var contentType ="application/x-www-form-urlencoded; charset=utf-8";
+    if(window.XDomainRequest){contentType = "text/plain";}
+	jQuery.support.cors = true; 
+		
+		var siteurl = 'http://vantageprojects.biz/mybespoker';
+		var url = siteurl+'/wp-admin/admin-ajax.php';
+       jQuery.ajax({  
+         type: 'GET',  
+         url: url,           
+         dataType: 'jsonp',  
+         data: {acting:'getcartitems'},  
+         crossDomain: true,  
+         success: function(res) {
+			 
+			 	$(".ordertable").html(res['cart']);
+				
+				if(res['empty'])
+				{
+					$(".submit_button").addClass("desable");	
+					$(".submit_button").attr("disabled", true);
+					$(".submit_button").before('<input type="button" class="submit_button back_to_home" value="Back" />&nbsp;&nbsp;');
+					
+				}else{
+					$(".submit_button").removeClass("desable");
+					$(".submit_button").attr("disabled", false);
+					$(".submit_button").addClass("continue");
+				}
+				
+			}
+       });	
+	   
+	   
+	  $(".delete").live("click", function(){
+		  
+		  var delete_id = $(this).attr("id");		  
+		  		  
+		  jQuery.ajax({  
+			 type: 'GET',  
+			 url: url,           
+			 dataType: 'jsonp',  
+			 data: {acting:'deletecartitems', deleteitems: delete_id},  
+			 crossDomain: true,  
+			 success: function(res) {
+				 
+					$(".ordertable").html(res['cart']);
+					
+				if(res['empty'])
+				{
+					$(".submit_button").addClass("desable");	
+					$(".submit_button").attr("disabled", true);
+					$(".submit_button").before('<a href="./" class="submit_button">BACK</a>&nbsp;&nbsp;');
+					
+				}else{
+					$(".submit_button").removeClass("desable");
+					$(".submit_button").attr("disabled", false);
+					$(".submit_button").addClass("continue");
+				}
+				}
+				
+				
+       	   });
+	    });	 
+		
+		$(".continue").live("click", function(){			
+			
+			var coupon_cde = $('input[name="coupon_cde"]').val();	
+			
+			if(coupon_cde == "")
+			{
+				location = "checkout.html";
+			}else if(coupon_cde != "")
+			{
+				 jQuery.ajax({  
+					 type: 'GET',  
+					 url: url,           
+					 dataType: 'jsonp',  
+					 data: {acting:'validateCoupon', couponcode: coupon_cde},  
+					 crossDomain: true,  
+					 success: function(res) {	
+					 	$('.inputerror').remove();						
+							
+						if(res['success'])
+						{
+							location = "checkout.html";							
+						}else if(res['error']){							
+							$('input[name="coupon_cde"]').after('<p class="inputerror">' + res['error'] + "</p>");
+						}
+					}
+						
+						
+				   });
+			}
+			
+						
+		});  
+		
+		$(".back_to_home").live("click", function(){
+			
+			location = "index.html";	
+			
+		});
+	
+});
+</script>
+</head>
+<body>
+<div class="container maincontainer">
+  <div class="header"> <a href="./"><img src="images/logo.png" /></a> </div>
+  <div class="wrapper">
+    <div class="loginmain_section">
+      <div class="orderconfirmation">
+        <h1>Order Confirmation</h1>
+        <div class="ordertable">
+          
+        </div>
+        <div class="box1">
+          <label>&nbsp;</label>
+          <div class="inputbox">
+            <input class="submit_button" type="button" value="NEXT"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
