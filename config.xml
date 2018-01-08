@@ -32,7 +32,7 @@
 	<icon src="images/logo.png" gap:platform="winphone" gap:role="background" />
 	<gap:splash src="images/logo.png" gap:platform="ios" width="338" height="84" />
 	 <!-- Core plugins -->
-	 <gap:plugin name="com.ams.plugins.barcodescanner" />
+	 <!--<gap:plugin name="com.ams.plugins.barcodescanner" />-->
    <!-- <gap:plugin name="org.apache.cordova.battery-status" />
     <gap:plugin name="org.apache.cordova.camera" />
     <gap:plugin name="org.apache.cordova.media-capture" />
